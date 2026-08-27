@@ -12,6 +12,8 @@ The headline check is CVT's **8-pixel horizontal granularity**: e.g. `945 × 168
 is flagged because 945 is not a multiple of 8 (CVT-RB uses 944), and the app
 recommends `952 × 1680` as the nearest higher compatible width.
 
+**Live site:** <https://daveleo.github.io/cvt-rb-resolution-validator/>
+
 No backend. No database. No login. No external API. No analytics. Everything runs
 locally in the browser.
 
@@ -223,19 +225,16 @@ The build output in `dist/` is a fully static site. `vite.config.ts` sets
 ### GitHub Pages — current setup (`gh-pages` branch)
 
 This repo publishes from the **`gh-pages`** branch, which holds the built
-`dist/` output. To publish a new version after changing the code:
+`dist/` output. In **Settings → Pages**, Source is
+**Deploy from a branch → `gh-pages` / `root`**. To publish a new version after
+changing the code:
 
 ```bash
-npm run build
-git worktree add /tmp/gh-pages gh-pages     # first time: git worktree add ... -b gh-pages
-rm -rf /tmp/gh-pages/* && cp -r dist/* /tmp/gh-pages/
-touch /tmp/gh-pages/.nojekyll
-( cd /tmp/gh-pages && git add -A && git commit -m "Deploy" && git push )
-git worktree remove /tmp/gh-pages
+npm run deploy      # runs scripts/deploy-gh-pages.sh: build + push to gh-pages
 ```
 
-In **Settings → Pages**, Source is **Deploy from a branch → `gh-pages` / `root`**.
-The site publishes to `https://<user>.github.io/<repo>/`.
+The site publishes to `https://<user>.github.io/<repo>/` — for this repo,
+<https://daveleo.github.io/cvt-rb-resolution-validator/>.
 
 ### GitHub Pages — automated via Actions (optional)
 
