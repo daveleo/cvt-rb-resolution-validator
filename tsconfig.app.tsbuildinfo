@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/collapsible.tsx","./src/components/nearbywidths.tsx","./src/components/resultcard.tsx","./src/components/timingdetails.tsx","./src/cvt/cvtrbv1.ts","./src/cvt/index.ts","./src/cvt/recommend.ts","./src/cvt/tests/cvtrbv1.test.ts","./src/lib/format.ts","./src/lib/summary.ts","./src/lib/url.ts"],"version":"5.9.3"}
