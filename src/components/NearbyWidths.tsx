@@ -13,8 +13,8 @@ export function NearbyWidths({
   onPick: (width: number) => void;
 }) {
   return (
-    <section className="nearby" aria-label="Nearby CVT-RB widths">
-      <h3 className="nearby__title">Nearby CVT-RB widths</h3>
+    <section className="nearby" aria-label="Nearby supported widths">
+      <h3 className="nearby__title">Nearby supported widths</h3>
       <p className="nearby__hint">
         Same height ({int(height)}) and refresh rate ({refreshRate} Hz). Click to recalculate.
       </p>

@@ -14,7 +14,8 @@ export function ResultCard({
     result.requestedHeight,
     result.requestedRefreshRate,
   );
-  const active = `${int(timing.hActive)} × ${int(timing.vActive)}`;
+  const effective = `${int(timing.hActive)} × ${int(timing.vActive)}`;
+  const requestedDims = `${int(result.requestedWidth)} × ${int(result.requestedHeight)}`;
 
   if (verdict === 'valid') {
     return (
@@ -23,17 +24,17 @@ export function ResultCard({
           <span className="result__icon" aria-hidden="true">
             ✓
           </span>
-          Valid CVT-RB v1 candidate
+          No resolution problems found
         </p>
 
         <dl className="result__facts">
           <div>
-            <dt>Requested resolution</dt>
-            <dd>{requested}</dd>
+            <dt>Resolution</dt>
+            <dd className="result__big">{requestedDims}</dd>
           </div>
           <div>
-            <dt>CVT-RB active resolution</dt>
-            <dd className="result__big">{active}</dd>
+            <dt>Refresh rate</dt>
+            <dd>{result.requestedRefreshRate} Hz</dd>
           </div>
           <div>
             <dt>Orientation</dt>
@@ -42,11 +43,13 @@ export function ResultCard({
         </dl>
 
         <p className="result__note">
-          Horizontal resolution is correctly aligned to the CVT 8-pixel granularity.
+          {int(result.requestedWidth)} is a multiple of 8, so the width lands on the grid that
+          every standard custom timing uses and this resolution can be created exactly. Height
+          and refresh rate are fine.
         </p>
         <p className="result__disclaimer">
-          This confirms CVT-RB v1 timing validity only — not that a specific GPU, driver,
-          operating system, interface or receiving device will accept it.
+          This checks the resolution numbers only — not whether a specific GPU, driver, operating
+          system, cable or receiving device will accept it.
         </p>
       </div>
     );
@@ -58,7 +61,7 @@ export function ResultCard({
         <span className="result__icon" aria-hidden="true">
           ⚠
         </span>
-        Not an exact CVT-RB v1 resolution
+        {int(result.requestedWidth)} isn’t a supported width
       </p>
 
       <dl className="result__facts">
@@ -67,8 +70,8 @@ export function ResultCard({
           <dd>{requested}</dd>
         </div>
         <div>
-          <dt>CVT-RB active resolution</dt>
-          <dd className="result__big">{active}</dd>
+          <dt>Closest it can be built as</dt>
+          <dd className="result__big">{effective}</dd>
         </div>
         <div>
           <dt>Orientation</dt>
@@ -77,14 +80,15 @@ export function ResultCard({
       </dl>
 
       <p className="result__note">
-        CVT-RB v1 requires the horizontal active resolution to follow an 8-pixel granularity.{' '}
-        {int(result.requestedWidth)} pixels cannot therefore be represented exactly — the
-        calculation uses {int(timing.hActive)}.
+        Every standard way of building a custom timing — in Windows, GPU drivers and tools like
+        CRU — steps the width in blocks of 8 pixels. {int(result.requestedWidth)} doesn’t land on
+        that grid, so it can’t be set up exactly. Height ({int(result.requestedHeight)}) and
+        refresh rate ({result.requestedRefreshRate} Hz) are fine.
       </p>
 
       <div className="result__reco">
         <div className="result__reco-primary">
-          <p className="result__reco-label">Recommended higher resolution</p>
+          <p className="result__reco-label">Recommended (round up)</p>
           <button
             type="button"
             className="result__reco-value"
@@ -94,7 +98,7 @@ export function ResultCard({
           </button>
         </div>
         <div className="result__reco-secondary">
-          <p className="result__reco-label">Nearest lower resolution</p>
+          <p className="result__reco-label">Alternative (round down)</p>
           <button
             type="button"
             className="result__reco-value result__reco-value--minor"
@@ -106,8 +110,8 @@ export function ResultCard({
       </div>
 
       <p className="result__disclaimer">
-        We default the recommendation to the <strong>higher</strong> width because growing the
-        canvas is usually safer than shrinking it for LED / AV work.
+        We suggest the <strong>larger</strong> width by default — growing the canvas is usually
+        safer than shrinking it for LED / AV work.
       </p>
     </div>
   );

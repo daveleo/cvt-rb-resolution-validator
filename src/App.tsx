@@ -107,9 +107,10 @@ export function App() {
   return (
     <div className="page">
       <header className="masthead">
-        <h1 className="masthead__title">CVT-RB Resolution Validator</h1>
+        <h1 className="masthead__title">Resolution Compatibility Checker</h1>
         <p className="masthead__subtitle">
-          Check whether a custom resolution is compatible with CVT Reduced Blanking v1 timing.
+          Check whether a custom width, height and refresh rate can be set up as a clean custom
+          display resolution — before you build it in CRU or a display processor.
         </p>
       </header>
 
@@ -119,21 +120,21 @@ export function App() {
             <div className="form__grid">
               <Field
                 id="width"
-                label="Horizontal Pixels"
+                label="Width (pixels)"
                 value={input.width}
                 onChange={setField('width')}
                 inputMode="numeric"
               />
               <Field
                 id="height"
-                label="Vertical Pixels"
+                label="Height (pixels)"
                 value={input.height}
                 onChange={setField('height')}
                 inputMode="numeric"
               />
               <Field
                 id="hz"
-                label="Refresh Rate (Hz)"
+                label="Refresh rate (Hz)"
                 value={input.refreshRate}
                 onChange={setField('refreshRate')}
                 inputMode="decimal"
@@ -184,24 +185,24 @@ export function App() {
               onPick={pickWidth}
             />
 
-            <Collapsible title="Why?">
+            <Collapsible title="Why does the width have to be a multiple of 8?">
               <p>
-                CVT-RB v1 treats horizontal and vertical resolutions differently. Horizontal
-                active pixels are calculated using an 8-pixel alignment. This means widths such
-                as 944, 952, 960 and 968 are valid candidates, while widths such as 945, 950 or
-                953 cannot be represented exactly by the standard CVT-RB v1 calculation.
+                A custom resolution is really a set of “timing” numbers. Every standard way of
+                generating those numbers — the CVT and GTF formulas built into Windows, graphics
+                drivers and tools like CRU — steps the horizontal width in blocks of 8 pixels.
+                So widths such as 944, 952, 960 and 968 are fine, while 945, 950 or 953 don’t
+                land on the grid and can’t be entered exactly.
               </p>
               <p>
-                A mathematically valid CVT-RB timing does not guarantee that every GPU, graphics
-                driver, operating system, display controller or LED processor will accept the
-                resolution. This tool verifies the timing standard, not hardware compatibility.
+                Heights and refresh rates are not affected by this rule — only the width.
               </p>
               <p className="why__split">
-                <strong>CVT-RB validity</strong> — the timing can be expressed by the CVT-RB v1
-                algorithm. <br />
+                <strong>Resolution alignment</strong> — whether the numbers you typed can be
+                expressed as a standard timing. That’s what this tool checks.
+                <br />
                 <strong>Hardware / Windows compatibility</strong> — whether your GPU, driver,
-                cable, EDID and receiving hardware will actually run it. This site checks the
-                first, not the second.
+                operating system, cable, EDID and receiving hardware will actually run it. That
+                depends on the specific equipment and is not checked here.
               </p>
             </Collapsible>
 
@@ -212,8 +213,10 @@ export function App() {
                 requestedRefreshRate={parsed.result.requestedRefreshRate}
               />
               <p className="timing__footnote">
-                Standard implemented: <strong>CVT-RB v1</strong> (VESA Coordinated Video Timings,
-                Reduced Blanking version 1). Not CVT standard blanking, CVT-RB v2, CTA-861 or DMT.
+                The figures above are a worked example, calculated with the VESA CVT Reduced
+                Blanking v1 formula. The 8-pixel width rule shown in the result applies to{' '}
+                <em>all</em> standard timing methods (CVT, CVT-RB v1 and v2, GTF) — not just this
+                one. A valid timing here does not guarantee any specific hardware will accept it.
               </p>
             </Collapsible>
           </>
@@ -232,11 +235,12 @@ export function App() {
 
       <footer className="footer">
         <p>
-          <strong>CVT-RB Resolution Validator</strong>
+          <strong>Resolution Compatibility Checker</strong>
         </p>
         <p>
-          Timing calculations are intended as an engineering aid. Actual GPU and display
-          compatibility may vary. Not affiliated with or endorsed by VESA.
+          Timing calculations are intended as an engineering aid. Whether a resolution is
+          accepted also depends on your GPU, driver, operating system, cable and display
+          hardware. Not affiliated with or endorsed by VESA.
         </p>
       </footer>
     </div>

@@ -1,9 +1,9 @@
 {
   "name": "cvt-rb-resolution-validator",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
-  "description": "Check whether a custom resolution is compatible with CVT Reduced Blanking v1 timing.",
+  "description": "Check whether a custom width, height and refresh rate can be set up as a clean custom display resolution.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

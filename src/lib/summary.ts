@@ -8,27 +8,29 @@ export function resultSummaryText(r: ValidationResult): string {
   const hz = r.requestedRefreshRate;
   const lines: string[] = [];
 
-  lines.push(`Resolution: ${w} × ${h} @ ${hz} Hz`);
+  lines.push(`Requested: ${w} × ${h} @ ${hz} Hz`);
 
   if (r.verdict === 'valid') {
-    lines.push('CVT-RB v1: Valid candidate (exact)');
-    lines.push(`CVT-RB active resolution: ${int(r.timing.hActive)} × ${int(r.timing.vActive)}`);
+    lines.push('Status: OK — width is a multiple of 8, can be set up exactly');
   } else {
-    lines.push('CVT-RB v1: Not exact');
-    lines.push(`Calculated active width: ${int(r.timing.hActive)} px`);
-    lines.push(`Recommended higher width: ${int(r.higherWidth)} px`);
-    lines.push(`Nearest lower width: ${int(r.lowerWidth)} px`);
-    lines.push(
-      `Recommended resolution: ${int(r.recommendedWidth)} × ${h} @ ${hz} Hz`,
-    );
+    lines.push(`Status: NOT SUPPORTED — width ${w} is not a multiple of 8`);
+    lines.push(`Closest it can be built as: ${int(r.timing.hActive)} × ${h}`);
+    lines.push(`Recommended: ${int(r.higherWidth)} × ${h} @ ${hz} Hz  (round up)`);
+    lines.push(`Alternative: ${int(r.lowerWidth)} × ${h} @ ${hz} Hz  (round down)`);
   }
 
   lines.push('');
-  lines.push(`Pixel clock: ${fixed(r.timing.pixelClockMHz, 3)} MHz`);
-  lines.push(`Actual refresh: ${fixed(r.timing.actualRefreshRate, 3)} Hz`);
-  lines.push(`H total / V total: ${int(r.timing.hTotal)} / ${int(r.timing.vTotal)}`);
+  lines.push('Reference timing (VESA CVT-RB v1):');
+  lines.push(`  Pixel clock:   ${fixed(r.timing.pixelClockMHz, 3)} MHz`);
+  lines.push(`  Actual refresh: ${fixed(r.timing.actualRefreshRate, 3)} Hz`);
+  lines.push(`  H total / V total: ${int(r.timing.hTotal)} / ${int(r.timing.vTotal)}`);
   lines.push('');
-  lines.push('Checked against CVT-RB v1 timing only — not GPU / OS / display compatibility.');
+  lines.push(
+    'Note: checks resolution alignment only. The 8-pixel width rule applies to all',
+  );
+  lines.push(
+    'standard timing methods. Actual GPU / OS / display compatibility is not checked.',
+  );
 
   return lines.join('\n');
 }

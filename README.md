@@ -1,16 +1,25 @@
-# CVT-RB Resolution Validator
+# Resolution Compatibility Checker
 
-> Check whether a custom resolution is compatible with **CVT Reduced Blanking v1**
-> (CVT-RB v1) timing — before you try to create it in CRU or a similar tool.
+> Check whether a custom width, height and refresh rate can be set up as a clean
+> custom display resolution — before you try to create it in CRU, a scaler or an
+> LED processor.
 
 A small, static, single-page web app for AV / LED-display salespeople, system
-integrators and technicians. Enter a width, height and refresh rate; the app runs
-the real VESA CVT-RB v1 timing calculation in the browser and tells you, in plain
-language, whether the requested **active resolution** can be represented exactly.
+integrators and technicians. Enter a width, height and refresh rate; the app
+tells you, in plain language, whether that resolution can be built exactly.
 
-The headline check is CVT's **8-pixel horizontal granularity**: e.g. `945 × 1680`
-is flagged because 945 is not a multiple of 8 (CVT-RB uses 944), and the app
-recommends `952 × 1680` as the nearest higher compatible width.
+The headline check is the **8-pixel horizontal width rule**: every standard way
+of generating a custom timing (the CVT and GTF formulas used by Windows, GPU
+drivers and tools like CRU) steps the width in blocks of 8 pixels. So `945 × 1680`
+is flagged because 945 is not a multiple of 8, and the app recommends
+`952 × 1680` (or the lower `944 × 1680`). Heights and refresh rates are not
+affected by this rule.
+
+Under the hood the app also computes a full reference timing with the VESA
+**CVT Reduced Blanking v1** algorithm, shown in the collapsible *Technical Timing
+Details* section. The 8-pixel width rule is not specific to CVT-RB — it is common
+to CVT, CVT-RB v1/v2 and GTF — so the main result does not single that standard
+out as "the cause".
 
 **Live site:** <https://daveleo.github.io/cvt-rb-resolution-validator/>
 
@@ -24,6 +33,7 @@ locally in the browser.
 - [Quick start](#quick-start)
 - [Scripts](#scripts)
 - [Project structure](#project-structure)
+- [The 8-pixel width rule](#the-8-pixel-width-rule)
 - [The CVT-RB v1 implementation](#the-cvt-rb-v1-implementation)
 - [Verification & sources](#verification--sources)
 - [URL parameters](#url-parameters)
@@ -98,6 +108,36 @@ const timing = calculateCvtRbV1(952, 1680, 60);
 
 ---
 
+## The 8-pixel width rule
+
+The check the user actually sees is simple and standard-agnostic:
+
+```
+supported  ⇔  width mod 8 === 0
+lower  = floor(width / 8) * 8
+higher = ceil (width / 8) * 8      // recommended by default
+```
+
+This is not a CVT-RB v1 quirk. The horizontal "character cell granularity" of
+**8 pixels** is shared by:
+
+| Method | Horizontal step |
+| ------ | --------------- |
+| CVT standard blanking | 8 px |
+| CVT Reduced Blanking v1 | 8 px |
+| CVT Reduced Blanking v2 | 8 px |
+| GTF (Generalized Timing Formula) | 8 px |
+
+CTA-861 / DMT are fixed lookup tables, not formulas, and their entries are all
+multiples of 8 as well. So a width like 945 cannot be produced exactly by *any*
+of the standard timing generators — only by a fully hand-built custom timing with
+no standard behind it. That is why the UI blames "the 8-pixel width rule", not
+CVT-RB.
+
+Heights and refresh rates have no comparable restriction here.
+
+---
+
 ## The CVT-RB v1 implementation
 
 `src/cvt/cvtRbV1.ts` is a clean-room re-implementation of the **VESA Coordinated
@@ -109,6 +149,10 @@ desktop / LED-wall timing uses in practice.
 
 **No proprietary VESA standards text is reproduced.** Only publicly documented
 numeric constants from the open-source implementations are used.
+
+This engine powers the *Technical Timing Details* section as a worked reference
+example (pixel clock, porches, totals, actual refresh). The pass/fail verdict
+itself only needs the [8-pixel width rule](#the-8-pixel-width-rule).
 
 ### Algorithm outline
 
@@ -280,11 +324,12 @@ No server-side runtime, rewrite rules or environment variables are required.
 
 ## Scope & disclaimer
 
-This tool checks **CVT-RB v1 timing validity only**. A mathematically valid
-CVT-RB timing does **not** guarantee that a given GPU, graphics driver, operating
-system, cable/interface, EDID, display controller or LED processor will accept
-the resolution. Those are separate **hardware / OS compatibility** questions the
-tool does not attempt to answer.
+This tool checks whether the resolution numbers **line up with a standard
+timing** — principally the 8-pixel horizontal width rule. It does **not**
+guarantee that a given GPU, graphics driver, operating system, cable/interface,
+EDID, display controller or LED processor will accept the resolution. Those are
+separate **hardware / OS compatibility** questions the tool does not attempt to
+answer.
 
 Not affiliated with, or endorsed by, VESA. No VESA logos or standards text are
 used.
